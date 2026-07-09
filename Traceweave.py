@@ -36,6 +36,20 @@ class LogParser():
                 parsed_log['metadata']['skipped_lines'] += 1
 
         return parsed_log
+    
+    def parse_line():
+        ...
+
+class HTTPRequest(): 
+    def __init__(self, host: str, timestamp: str, method: str, resource: str, protocol: str, status: int, size_bytes: int):
+        self.host = host
+        self.timestamp = timestamp
+        self.method = method
+        self.resource = resource
+        self.protocol = protocol
+        self.status = int(status)
+        self.size_bytes = int(size_bytes)
+
 
 
 
