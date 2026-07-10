@@ -49,7 +49,7 @@ class LogParser():
                 parsed_log['metadata']['total_lines'] += 1
                 parsed_log['metadata']['skipped_lines'] += 1
 
-        return parsed_log
+        return parsed_log # to DataFrameBuilder
     
     @staticmethod
     def parse_line(row: str) -> HTTPRequest | None :
@@ -80,8 +80,25 @@ class HTTPRequest():
         self.size_bytes = int(size_bytes)
 
 
+class DataFrameBuilder() -> pd.DataFrame :
 
+    @staticmethod
+    def DFBuilder(parsed_log: dict[str, dict]): 
+        requests_list = []
 
+        for row in parsed_log['requests']:
+            requests_list.append(row.__dict__)
+
+        df = pd.DataFrame(requests_list)
+        return df
+    
+    def analyzer(df): #decidiamo, metodo di DataFrameBuilder o classe separata ?
+        
+        print(df.shape())
+        print(df.isna().sum())
+        print(df.describe())
+        print(df.nunique())
+        print(df.value_counts())
 
 
 def main(): #implementiamo argparse in un secondo momento, per i test procediamo senza argparse impostando momentaneamente un dataframe fisso
