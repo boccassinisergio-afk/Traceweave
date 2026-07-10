@@ -14,6 +14,17 @@ LOG_PATTERN = re.compile(
     r"(?:\s?)"                                   # newline finale (scartato)
 )
 
+class HTTPRequest(): 
+    def __init__(self, host: str, timestamp: str, method: str, resource: str, protocol: str, status: int, size_bytes: int):
+        self.host = host
+        self.timestamp = timestamp
+        self.method = method
+        self.resource = resource
+        self.protocol = protocol
+        self.status = int(status)
+        self.size_bytes = int(size_bytes)
+
+
 class FileReader():
 
     @classmethod
@@ -69,21 +80,10 @@ class LogParser():
             return None
 
 
-class HTTPRequest(): 
-    def __init__(self, host: str, timestamp: str, method: str, resource: str, protocol: str, status: int, size_bytes: int):
-        self.host = host
-        self.timestamp = timestamp
-        self.method = method
-        self.resource = resource
-        self.protocol = protocol
-        self.status = int(status)
-        self.size_bytes = int(size_bytes)
-
-
-class DataFrameBuilder() -> pd.DataFrame :
+class DataFrameBuilder():
 
     @staticmethod
-    def DFBuilder(parsed_log: dict[str, dict]): 
+    def DFBuilder(parsed_log: dict[str, dict]) -> pd.DataFrame : 
         requests_list = []
 
         for row in parsed_log['requests']:
@@ -92,7 +92,9 @@ class DataFrameBuilder() -> pd.DataFrame :
         df = pd.DataFrame(requests_list)
         return df
     
-    def analyzer(df): #decidiamo, metodo di DataFrameBuilder o classe separata ?
+class Analyzer():
+        def analyze_df(df):
+            ...
         
         print(df.shape())
         print(df.isna().sum())
