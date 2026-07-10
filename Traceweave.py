@@ -1,4 +1,18 @@
 import os 
+import re
+import csv
+import pandas as pd
+
+
+LOG_PATTERN = re.compile(
+    r"(\S+)"                                     # host 
+    r"(?:\s+-\s+-\s+)"                           # identd/userid (scartati)
+    r"\[([a-zA-Z0-9:/\.-\s]+)\]"                 # timestamp 
+    r"(?:\s)"                                    # spazio
+    r'(?:")(\w+)(?:\s)(\S+)(?:\s)(\S+)(?:")'     # method, resource, protocol 
+    r"(?:\s)(\d+)(?:\s)(\d+)"                    # status, bytes 
+    r"(?:\s?)"                                   # newline finale (scartato)
+)
 
 class FileReader():
 
@@ -37,8 +51,23 @@ class LogParser():
 
         return parsed_log
     
-    def parse_line():
-        ...
+    @staticmethod
+    def parse_line(row: str) -> HTTPRequest | None :
+        
+        parsed_row = LOG_PATTERN.match(row)
+
+        if parsed_row:
+            return HTTPRequest(host=parsed_row.group(1),
+                                timestamp=parsed_row.group(2),
+                                method=parsed_row.group(3),
+                                resource=parsed_row.group(4),
+                                protocol=parsed_row.group(5),
+                                status=parsed_row.group(6),
+                                size_bytes=parsed_row.group(7)
+                                )
+        else:
+            return None
+
 
 class HTTPRequest(): 
     def __init__(self, host: str, timestamp: str, method: str, resource: str, protocol: str, status: int, size_bytes: int):
