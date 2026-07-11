@@ -93,14 +93,24 @@ class DataFrameBuilder():
         return df
     
 class Analyzer():
-        def analyze_df(df):
-            ...
         
-        print(df.shape())
-        print(df.isna().sum())
-        print(df.describe())
-        print(df.nunique())
-        print(df.value_counts())
+        @staticmethod
+        def analyze_df(df: pd.DataFrame) -> : #da decidere il return
+            df['status_category'] = df['status'].apply(Analyzer.categorize_status)
+
+        @staticmethod
+        def categorize_status(status: int) -> str:
+
+            if (status // 100) == 2:
+                return 'Success'
+            elif (status // 100) == 3:
+                return 'Redirect'
+            elif (status // 100) == 4:
+                return 'Client Error'
+            elif (status // 100) == 5:
+                return 'Server Error'
+            else:
+                return 'Other'
 
 
 def main(): #implementiamo argparse in un secondo momento, per i test procediamo senza argparse impostando momentaneamente un dataframe fisso
