@@ -94,7 +94,7 @@ class DataFrameBuilder():
     
 class Analyzer():
         
-        @staticmethod 
+        @staticmethod #ad inizio metodo crea una variabile che contiene una copia del df da poter modificare con nuove colonne, aggiusta poi 'status_category' con nome nuovo
         def analyze_df(df: pd.DataFrame) -> dict[str]: #si occupa di inserire i vari sommari ricevuti, in un dict AnalysisResult da inviare al generatore report
             df['status_category'] = df['status'].apply(Analyzer.categorize_status) #riceve status categorizzato, chiama i vari metodi che creano i sommari
             
