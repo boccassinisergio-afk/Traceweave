@@ -94,9 +94,10 @@ class DataFrameBuilder():
     
 class Analyzer():
         
-        @staticmethod
-        def analyze_df(df: pd.DataFrame) -> : #da decidere il return
-            df['status_category'] = df['status'].apply(Analyzer.categorize_status)
+        @staticmethod 
+        def analyze_df(df: pd.DataFrame) -> dict[str]: #si occupa di inserire i vari sommari ricevuti, in un dict AnalysisResult da inviare al generatore report
+            df['status_category'] = df['status'].apply(Analyzer.categorize_status) #riceve status categorizzato, chiama i vari metodi che creano i sommari
+            
 
         @staticmethod
         def categorize_status(status: int) -> str:
