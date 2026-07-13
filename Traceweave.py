@@ -3,6 +3,7 @@ import re
 import csv
 import pandas as pd
 
+TOP_HOST_COUNT = 10
 
 LOG_PATTERN = re.compile(
     r"(\S+)"                                     # host 
@@ -101,9 +102,12 @@ class Analyzer():
 
             df_edited = df.copy() 
 
-            df_edited['status_category'] = df_edited['status'].apply(Analyzer.categorize_status) 
+            df_edited['status_category'] = df_edited['status'].apply(Analyzer.categorize_status)
+            df_edited['resource_category'] = df_edited['resource'].apply(Analyzer.categorize_resource)
             analysis_result['status_summary'] = Analyzer.status_summary(df_edited)
             analysis_result['method_summary'] = Analyzer.method_summary(df_edited)
+            analysis_result['host_summary'] = Analyzer.host_summary(df_edited)
+            analysis_result['resource_summary'] = Analyzer.resource_summary(df_edited)
 
             return analysis_result
             
@@ -123,12 +127,29 @@ class Analyzer():
                 return 'Other'
             
         @staticmethod
+        def categorize_resource(resource: str) -> str:
+            splitted_resource = resource.lower().split('.')
+            if len(splitted_resource) == 1:
+                return 'no extension'
+            else len(splitted_resource) >= 2:
+                return splitted_resource[-1]
+
+            
+        @staticmethod
         def status_summary(df_edited: pd.DataFrame) -> pd.Series:
             return df_edited['status_category'].value_counts()
         
         @staticmethod
         def method_summary(df_edited: pd.DataFrame) -> pd.Series:
             return df_edited['method'].value_counts()
+        
+        @staticmethod
+        def host_summary(df_edited: pd.DataFrame) -> pd.Series:
+            return df_edited['host'].value_counts().head(TOP_HOST_COUNT)
+        
+        @staticmethod
+        def resource_summary(df_edited: pd.DataFrame) -> pd.Series:
+            return df_edited['resource_category'].value_counts()
 
 
 def main(): #implementiamo argparse in un secondo momento, per i test procediamo senza argparse impostando momentaneamente un dataframe fisso
