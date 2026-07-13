@@ -94,9 +94,18 @@ class DataFrameBuilder():
     
 class Analyzer():
         
-        @staticmethod #ad inizio metodo crea una variabile che contiene una copia del df da poter modificare con nuove colonne, aggiusta poi 'status_category' con nome nuovo
-        def analyze_df(df: pd.DataFrame) -> dict[str]: #si occupa di inserire i vari sommari ricevuti, in un dict AnalysisResult da inviare al generatore report
-            df['status_category'] = df['status'].apply(Analyzer.categorize_status) #riceve status categorizzato, chiama i vari metodi che creano i sommari
+        @staticmethod 
+        def analyze_df(df: pd.DataFrame) -> dict[str, pd.Series]: #si occupa di inserire i vari sommari ricevuti, in un dict AnalysisResult da inviare al generatore report
+            
+            analysis_result = {}
+
+            df_edited = df.copy() 
+
+            df_edited['status_category'] = df_edited['status'].apply(Analyzer.categorize_status) 
+            analysis_result['status_summary'] = Analyzer.status_summary(df_edited)
+            analysis_result['method_summary'] = Analyzer.method_summary(df_edited)
+
+            return analysis_result
             
 
         @staticmethod
@@ -112,6 +121,14 @@ class Analyzer():
                 return 'Server Error'
             else:
                 return 'Other'
+            
+        @staticmethod
+        def status_summary(df_edited: pd.DataFrame) -> pd.Series:
+            return df_edited['status_category'].value_counts()
+        
+        @staticmethod
+        def method_summary(df_edited: pd.DataFrame) -> pd.Series:
+            return df_edited['method'].value_counts()
 
 
 def main(): #implementiamo argparse in un secondo momento, per i test procediamo senza argparse impostando momentaneamente un dataframe fisso
