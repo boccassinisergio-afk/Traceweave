@@ -160,11 +160,17 @@ class Analyzer():
             return hours.value_counts().sort_index()
         
 class ReportGenerator():
-    def generator():
-        ...
+
+    @staticmethod
+    def formatted_report(analysis_dict: dict[str, pd.Series]) -> str:
+        string_to_return = ''
+        for k, v in analysis_dict.items():
+            string_to_return = string_to_return + k.capitalize().replace('_', ' ') + "\n"
+            string_to_return = string_to_return + v.to_string(dtype=False) + "\n\n"
+        return string_to_return
 
 
-def main(): #implementiamo argparse in un secondo momento, per i test procediamo senza argparse impostando momentaneamente un dataframe fisso
+def main():
 
     parser = argparse.ArgumentParser(description='Traceweave - Automatic logfile Analyzer. Pass a log file to generate a full analysis report.')
     parser.add_argument('--file', help='Write your file name here', required=True)
