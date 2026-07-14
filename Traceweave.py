@@ -1,14 +1,13 @@
-import os 
 import re
-import csv
 import pandas as pd
+import argparse
 
 TOP_HOST_COUNT = 10
 
 LOG_PATTERN = re.compile(
     r"(\S+)"                                     # host -------> scrivi esempi per ogni parsing
-    r"(?:\s+-\s+-\s+)"                           # identd/userid (scartati)
-    r"\[([a-zA-Z0-9:/\.-\s]+)\]"                 # timestamp 
+    r"(?:\s+-\s+-\s+)"                           # identd/userid (scartati) --------> indichiamolo nel readme, con esempi pratici per evitare che sia arte oscura
+    r"\[([-a-zA-Z0-9:/\.\s]+)\]"                 # timestamp 
     r"(?:\s)"                                    # spazio
     r'(?:")(\w+)(?:\s)(\S+)(?:\s)(\S+)(?:")'     # method, resource, protocol 
     r"(?:\s)(\d+)(?:\s)(\d+)"                    # status, bytes 
@@ -61,7 +60,7 @@ class LogParser():
                 parsed_log['metadata']['total_lines'] += 1
                 parsed_log['metadata']['skipped_lines'] += 1
 
-        return parsed_log # to DataFrameBuilder
+        return parsed_log
     
     @staticmethod
     def parse_line(row: str) -> HTTPRequest | None :
@@ -130,9 +129,11 @@ class Analyzer():
             
         @staticmethod
         def categorize_resource(resource: str) -> str:
+            if resource.endswith('/'):
+                return 'Directory'
             splitted_resource = resource.lower().split('.')
             if len(splitted_resource) == 1:
-                return 'no extension'
+                return 'No extension'
             else:
                 return splitted_resource[-1]
 
@@ -157,14 +158,22 @@ class Analyzer():
         def hourly_summary(df_edited: pd.DataFrame) -> pd.Series:
             hours = df_edited['splitted_datetime'].dt.hour
             return hours.value_counts().sort_index()
+        
+class ReportGenerator():
+    def generator():
+        ...
 
 
 def main(): #implementiamo argparse in un secondo momento, per i test procediamo senza argparse impostando momentaneamente un dataframe fisso
-    path = 'C:/Users/bocca/Desktop/boccassinisergio-afk/new/prova.txt'
-    analyzer = FileReader.from_path(path)
-    collector = FileReader.request_collector(analyzer)
 
-    print(analyzer)
+    parser = argparse.ArgumentParser(description='Traceweave - Automatic logfile Analyzer. Pass a log file to generate a full analysis report.')
+    parser.add_argument('--file', help='Write your file name here', required=True)
+    args = parser.parse_args()
 
+    filename = args.file
+    raw_string_list = FileReader.from_path(filename)
+    parsed_log_list = LogParser.request_collector(raw_string_list)
+    dataframe = DataFrameBuilder.DFBuilder(parsed_log_list)
+    analysis = Analyzer.analyze_df(dataframe)
 
 main() #sostituire prima del rilascio con if __name__ == "__main__": main()
