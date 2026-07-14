@@ -6,7 +6,7 @@ import pandas as pd
 TOP_HOST_COUNT = 10
 
 LOG_PATTERN = re.compile(
-    r"(\S+)"                                     # host 
+    r"(\S+)"                                     # host -------> scrivi esempi per ogni parsing
     r"(?:\s+-\s+-\s+)"                           # identd/userid (scartati)
     r"\[([a-zA-Z0-9:/\.-\s]+)\]"                 # timestamp 
     r"(?:\s)"                                    # spazio
@@ -104,10 +104,12 @@ class Analyzer():
 
             df_edited['status_category'] = df_edited['status'].apply(Analyzer.categorize_status)
             df_edited['resource_category'] = df_edited['resource'].apply(Analyzer.categorize_resource)
+            df_edited['splitted_datetime'] = pd.to_datetime(df_edited['timestamp'], format="%d/%b/%Y:%H:%M:%S %z")
             analysis_result['status_summary'] = Analyzer.status_summary(df_edited)
             analysis_result['method_summary'] = Analyzer.method_summary(df_edited)
             analysis_result['host_summary'] = Analyzer.host_summary(df_edited)
             analysis_result['resource_summary'] = Analyzer.resource_summary(df_edited)
+            analysis_result['hourly_summary'] = Analyzer.hourly_summary(df_edited)
 
             return analysis_result
             
@@ -131,7 +133,7 @@ class Analyzer():
             splitted_resource = resource.lower().split('.')
             if len(splitted_resource) == 1:
                 return 'no extension'
-            else len(splitted_resource) >= 2:
+            else:
                 return splitted_resource[-1]
 
             
@@ -150,6 +152,11 @@ class Analyzer():
         @staticmethod
         def resource_summary(df_edited: pd.DataFrame) -> pd.Series:
             return df_edited['resource_category'].value_counts()
+        
+        @staticmethod
+        def hourly_summary(df_edited: pd.DataFrame) -> pd.Series:
+            hours = df_edited['splitted_datetime'].dt.hour
+            return hours.value_counts().sort_index()
 
 
 def main(): #implementiamo argparse in un secondo momento, per i test procediamo senza argparse impostando momentaneamente un dataframe fisso
