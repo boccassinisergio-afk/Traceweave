@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 TOP_HOST_COUNT = 10
 
 LOG_PATTERN = re.compile(
-    r"(\S+)"                                     # host -------> scrivi esempi per ogni parsing
-    r"(?:\s+-\s+-\s+)"                           # identd/userid (scartati) --------> indichiamolo nel readme, con esempi pratici per evitare che sia arte oscura
-    r"\[([-a-zA-Z0-9:/\.\s]+)\]"                 # timestamp 
-    r"(?:\s)"                                    # spazio
-    r'(?:")(\w+)(?:\s)(\S+)(?:\s)(\S+)(?:")'     # method, resource, protocol 
-    r"(?:\s)(\d+)(?:\s)(\d+)"                    # status, bytes 
-    r"(?:\s?)"                                   # newline finale (scartato)
+    r"(\S+)"                                     # client host/IP (es. "unicomp6.unicomp.net")
+    r"(?:\s+-\s+-\s+)"                           # identd/userid (ignored) -> "- -"
+    r"\[([-a-zA-Z0-9:/\.\s]+)\]"                 # timestamp (es. "01/Jul/1995:00:00:06 -0400")
+    r"(?:\s)"                                    # space betwin timestamp and request
+    r'(?:")(\w+)(?:\s)(\S+)(?:\s)(\S+)(?:")'     # method -> "GET" , resource -> "/shuttle/countdown/", protocol -> "HTTP/1.0"
+    r"(?:\s)(\d+)(?:\s)(\d+)"                    # status -> "200", bytes -> "3985"
+    r"(?:\s?)"                                   # final newline 
 )
 
 class HTTPRequest(): 
@@ -167,7 +167,7 @@ class ReportGenerator():
         string_to_return = ''
         for k, v in analysis_dict.items():
             string_to_return = string_to_return + k.capitalize().replace('_', ' ') + "\n"
-            string_to_return = string_to_return + v.to_string(dtype=False, header=False) + "\n\n" #rimuovi dtype=False 
+            string_to_return = string_to_return + v.to_string(header=False, name=False, dtype=False) + "\n\n"
         return string_to_return
     
     @staticmethod
@@ -213,4 +213,5 @@ def main():
     ReportGenerator.text_report(analysis, file_to_export)
     ReportGenerator.text_on_screen(analysis)
 
-main() #sostituire prima del rilascio con if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()
