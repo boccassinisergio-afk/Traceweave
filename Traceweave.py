@@ -1,6 +1,7 @@
 import re
 import pandas as pd
 import argparse
+import matplotlib.pyplot as plt
 
 TOP_HOST_COUNT = 10
 
@@ -95,7 +96,7 @@ class DataFrameBuilder():
 class Analyzer():
         
         @staticmethod 
-        def analyze_df(df: pd.DataFrame) -> dict[str, pd.Series]: #si occupa di inserire i vari sommari ricevuti, in un dict AnalysisResult da inviare al generatore report
+        def analyze_df(df: pd.DataFrame) -> dict[str, pd.Series]:
             
             analysis_result = {}
 
@@ -166,7 +167,7 @@ class ReportGenerator():
         string_to_return = ''
         for k, v in analysis_dict.items():
             string_to_return = string_to_return + k.capitalize().replace('_', ' ') + "\n"
-            string_to_return = string_to_return + v.to_string(dtype=False) + "\n\n"
+            string_to_return = string_to_return + v.to_string(dtype=False, header=False) + "\n\n" #rimuovi dtype=False 
         return string_to_return
     
     @staticmethod
@@ -175,6 +176,20 @@ class ReportGenerator():
         with open(file_path, 'w') as file:
             file.write(string_to_save)
         return 'TRACEWEAVE - report saved to file'
+    
+    @staticmethod
+    def text_on_screen(analysis_dict: dict[str, pd.Series]) -> None:
+        string_to_print = ReportGenerator.formatted_report(analysis_dict)
+        print(string_to_print)
+
+    @staticmethod
+    def hourly_chart(hourly_summary: pd.Series, chart_path: str) -> None:
+        plt.bar(x = hourly_summary.index, height = hourly_summary.values)
+        plt.title('Traffic Distribution by Hour')
+        plt.xlabel('Hours')
+        plt.ylabel('Traffic')
+        plt.savefig(chart_path)
+        plt.close()
 
 
 def main():
@@ -182,14 +197,20 @@ def main():
     parser = argparse.ArgumentParser(description='Traceweave - Automatic logfile Analyzer. Pass a log file to generate a full analysis report.')
     parser.add_argument('--file', help='Write your file name here', required=True)
     parser.add_argument('--export', help='Write your file name to export here, default is report.txt', default='report.txt')
+    parser.add_argument('--chart', help='Write your chart name to export here, default is hourly_chart.png', default='hourly_chart.png')
     args = parser.parse_args()
 
     filename = args.file
     file_to_export = args.export
+    chart_to_export = args.chart
+
     raw_string_list = FileReader.from_path(filename)
     parsed_log_list = LogParser.request_collector(raw_string_list)
     dataframe = DataFrameBuilder.DFBuilder(parsed_log_list)
     analysis = Analyzer.analyze_df(dataframe)
-    report_to_file = ReportGenerator.text_report(analysis, file_to_export)
+    
+    ReportGenerator.hourly_chart(analysis['hourly_summary'], chart_to_export)
+    ReportGenerator.text_report(analysis, file_to_export)
+    ReportGenerator.text_on_screen(analysis)
 
 main() #sostituire prima del rilascio con if __name__ == "__main__": main()
