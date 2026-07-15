@@ -168,18 +168,28 @@ class ReportGenerator():
             string_to_return = string_to_return + k.capitalize().replace('_', ' ') + "\n"
             string_to_return = string_to_return + v.to_string(dtype=False) + "\n\n"
         return string_to_return
+    
+    @staticmethod
+    def text_report(analysis_dict: dict[str, pd.Series], file_path: str) -> str:
+        string_to_save = ReportGenerator.formatted_report(analysis_dict)
+        with open(file_path, 'w') as file:
+            file.write(string_to_save)
+        return 'TRACEWEAVE - report saved to file'
 
 
 def main():
 
     parser = argparse.ArgumentParser(description='Traceweave - Automatic logfile Analyzer. Pass a log file to generate a full analysis report.')
     parser.add_argument('--file', help='Write your file name here', required=True)
+    parser.add_argument('--export', help='Write your file name to export here, default is report.txt', default='report.txt')
     args = parser.parse_args()
 
     filename = args.file
+    file_to_export = args.export
     raw_string_list = FileReader.from_path(filename)
     parsed_log_list = LogParser.request_collector(raw_string_list)
     dataframe = DataFrameBuilder.DFBuilder(parsed_log_list)
     analysis = Analyzer.analyze_df(dataframe)
+    report_to_file = ReportGenerator.text_report(analysis, file_to_export)
 
 main() #sostituire prima del rilascio con if __name__ == "__main__": main()
