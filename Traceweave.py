@@ -4,6 +4,7 @@ Parses Common Log Format (CLF) log files, builds summary statistics with
 pandas, and generates a text report and an hourly traffic chart.
 """
 
+import sys
 import re
 import pandas as pd
 import argparse
@@ -402,8 +403,20 @@ def main():
     file_to_export = args.export
     chart_to_export = args.chart
 
-    raw_string_list = FileReader.from_path(filename)
+    try:
+        raw_string_list = FileReader.from_path(filename)
+    except OSError as e:
+        print(f'TRACEWEAVE - [WARN]: {e}')
+        sys.exit(1)
+
     parsed_log_list = LogParser.request_collector(raw_string_list)
+
+    if len(parsed_log_list['requests']) == 0:
+        print(
+            f"TRACEWEAVE - [WARN]: {parsed_log_list['metadata']['skipped_lines']} discarded rows out of a total of {parsed_log_list['metadata']['total_lines']}"
+            )
+        sys.exit(1)
+        
     dataframe = DataFrameBuilder.df_builder(parsed_log_list)
     analysis = Analyzer.analyze_df(dataframe)
     
