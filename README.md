@@ -78,8 +78,8 @@ Hourly summary
 Requires Python 3.10 or later (uses `X | Y` union type hints).
 
 ```bash
-git clone https://github.com/boccassinisergio-afk/traceweave.git
-cd traceweave
+git clone https://github.com/boccassinisergio-afk/Traceweave.git
+cd Traceweave
 pip install pandas matplotlib
 ```
 
