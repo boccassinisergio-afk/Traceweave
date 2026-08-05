@@ -22,8 +22,6 @@ Traceweave takes a raw HTTP access log and turns it into a structured analysis: 
 
 Sample input and output are in the `examples/` folder (`sample_log.txt`, `hourly_chart.png`).
 
----
-
 Run it:
 
 ```bash
